@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct Bolum
+typedef struct Bolum // bolum bilgilerini iceren struct
 {
 	int bolumID;
 	char bolumAd[30];
