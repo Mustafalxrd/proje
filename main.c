@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
 
 typedef struct Bolum
 {
@@ -38,6 +39,20 @@ typedef struct Notlar
 
 void bolumListele();
 
+void dataKlasoru()
+{
+	const char *folderPath = "data";
+
+	if (CreateDirectory(folderPath, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+	{
+		// printf("Folder created successfully or already exists: %s\n", folderPath);
+	}
+	else
+	{
+		printf("Otomasyonun çalışması için gerekli klasör oluşturulamadı: %s\n", folderPath);
+	}
+}
+
 void ogrenciEkle()
 {
 	system("cls");
@@ -45,7 +60,7 @@ void ogrenciEkle()
 
 	ogr o1;
 
-	FILE *numPtr = fopen("ogrenciNumaralari.dat", "a+b");
+	FILE *numPtr = fopen("./data/ogrenciNumaralari.dat", "a+b");
 	int numara = 0;
 	while (fread(&numara, sizeof(int), 1, numPtr))
 	{
@@ -86,7 +101,7 @@ void ogrenciEkle()
 	scanf("%d", &o1.bolumID);
 	o1.durum = 1;
 
-	FILE *ptr = fopen("ogrenciler.dat", "a+b");
+	FILE *ptr = fopen("./data/ogrenciler.dat", "a+b");
 	fwrite(&o1, sizeof(ogr), 1, ptr);
 	fclose(ptr);
 
@@ -101,11 +116,11 @@ void ogrenciSil()
 	ogr o1;
 	int numara, sayac = 0, sonuc = 0;
 
-	FILE *ptr = fopen("ogrenciler.dat", "r+b");
+	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
 
 	printf("Numara : ");
 	scanf("%d", &numara);
-	while (fread(&o1, sizeof(ogr), 1, ptr) != NULL)
+	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		if (numara == o1.numara && o1.durum == 1)
 		{
@@ -136,11 +151,11 @@ void ogrenciAra()
 	ogr o1;
 	int numara, sayac = 0, sonuc = 0;
 
-	FILE *ptr = fopen("ogrenciler.dat", "r+b");
+	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
 
 	printf("Numara : ");
 	scanf("%d", &numara);
-	while (fread(&o1, sizeof(ogr), 1, ptr) != NULL)
+	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		if (numara == o1.numara)
 		{
@@ -171,7 +186,7 @@ void ogrenciListele()
 	printf("Ogrenci listele islemi... \n\n");
 
 	ogr o1;
-	FILE *ptr = fopen("ogrenciler.dat", "r+b");
+	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
 
 	bolumListele();
 	int bolumNo, sayac = 0;
@@ -179,7 +194,7 @@ void ogrenciListele()
 	scanf("%d", &bolumNo);
 
 	printf("%-20s%-20s%-30s\n", "NUMARA", "TC", "AD-SOYAD");
-	while (fread(&o1, sizeof(ogr), 1, ptr) != NULL)
+	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		if (bolumNo == o1.bolumID && o1.durum == 1)
 		{
@@ -190,6 +205,7 @@ void ogrenciListele()
 	fclose(ptr);
 	printf("\nToplam ogrenci sayisi : %d \n", sayac);
 }
+
 void ogrenciBelgesi()
 {
 	system("cls");
@@ -198,11 +214,11 @@ void ogrenciBelgesi()
 	ogr o1;
 	int numara, sayac = 0, sonuc = 0;
 
-	FILE *ptr = fopen("ogrenciler.dat", "r+b");
+	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
 
 	printf("Numara : ");
 	scanf("%d", &numara);
-	while (fread(&o1, sizeof(ogr), 1, ptr) != NULL)
+	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		if (numara == o1.numara)
 		{
@@ -257,11 +273,11 @@ void ogrenciTranskript()
 	ogr o1;
 	int numara, sayac = 0, sonuc = 0;
 
-	FILE *ptr = fopen("ogrenciler.dat", "r+b");
+	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
 
 	printf("Numara : ");
 	scanf("%d", &numara);
-	while (fread(&o1, sizeof(ogr), 1, ptr) != NULL)
+	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		if (numara == o1.numara)
 		{
@@ -286,7 +302,7 @@ void ogrenciTranskript()
 
 		notlar n1;
 
-		FILE *ptr = fopen("notlar.dat", "r+b");
+		FILE *ptr = fopen("./data/notlar.dat", "r+b");
 		printf("%-20s%-20s%-20s\n", "DERS-ID", "OGRENCI-NO", "PUAN");
 		while (fread(&n1, sizeof(notlar), 1, ptr))
 		{
@@ -305,11 +321,11 @@ void ogrenciMezuniyet()
 	ogr o1;
 	int numara, sonuc = 0, sayac = 0;
 
-	FILE *ptr = fopen("ogrenciler.dat", "r+b");
+	FILE *ptr = fopen("./data/ogrenciler.dat", "r+b");
 
 	printf("Numara : ");
 	scanf("%d", &numara);
-	while (fread(&o1, sizeof(ogr), 1, ptr) != NULL)
+	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		if (numara == o1.numara)
 		{
@@ -334,16 +350,16 @@ void ogrenciMezuniyet()
 int ogrenciMenu()
 {
 	int secim;
-	printf("\n\tOgrenci islemleri \n\n");
-	printf("\n\t1- Ogrenci Ekle \n");
-	printf("\n\t2- Ogrenci Sil \n");
-	printf("\n\t3- Ogrenci Listele \n");
-	printf("\n\t4- Ogrenci Belgesi \n");
-	printf("\n\t5- Ogrenci Transkript  \n");
-	printf("\n\t6- Ogrenci Ara  \n");
-	printf("\n\t7- Ogrenci Mezuniyet \n");
+	printf("\n\tOgrenci islemleri... \n\n");
+	printf("\n\t1- Ogrenci Ekle  \n");
+	printf("\n\t2- Ogrenci Sil  \n");
+	printf("\n\t3- Ogrenci Ara  \n");
+	printf("\n\t4- Ogrenci Listele  \n");
+	printf("\n\t5- Ogrenci Belgesi  \n");
+	printf("\n\t6- Ogrenci Transkript  \n");
+	printf("\n\t7- Ogrenci Mezuniyet  \n");
 	printf("\n\t0- Cikis \n");
-	printf("\n\t- Seciminiz :  ");
+	printf("\n\t- Seciminiz   :  ");
 	scanf("%d", &secim);
 	system("cls");
 	return secim;
@@ -393,7 +409,7 @@ void ogretimGorevlisiEkle()
 
 	ogr o1;
 
-	FILE *numPtr = fopen("ogretimGorevlisiNumaralari.dat", "a+b");
+	FILE *numPtr = fopen("./data/ogretimGorevlisiNumaralari.dat", "a+b");
 	int numara = 0;
 	while (fread(&numara, sizeof(int), 1, numPtr))
 	{
@@ -434,7 +450,7 @@ void ogretimGorevlisiEkle()
 	scanf("%d", &o1.bolumID);
 	o1.durum = 1;
 
-	FILE *ptr = fopen("ogretimGorevlileri.dat", "a+b");
+	FILE *ptr = fopen("./data/ogretimGorevlileri.dat", "a+b");
 	fwrite(&o1, sizeof(ogr), 1, ptr);
 	fclose(ptr);
 
@@ -449,11 +465,11 @@ void ogretimGorevlisiSil()
 	ogr o1;
 	int numara, sayac = 0, sonuc = 0;
 
-	FILE *ptr = fopen("ogretimGorevlileri.dat", "r+b");
+	FILE *ptr = fopen("./data/ogretimGorevlileri.dat", "r+b");
 
 	printf("Numara : ");
 	scanf("%d", &numara);
-	while (fread(&o1, sizeof(ogr), 1, ptr) != NULL)
+	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		if (numara == o1.numara && o1.durum == 1)
 		{
@@ -483,11 +499,11 @@ void ogretimGorevlisiAra()
 	ogr o1;
 	int numara, sayac = 0, sonuc = 0;
 
-	FILE *ptr = fopen("ogretimGorevlileri.dat", "r+b");
+	FILE *ptr = fopen("./data/ogretimGorevlileri.dat", "r+b");
 
 	printf("Numara : ");
 	scanf("%d", &numara);
-	while (fread(&o1, sizeof(ogr), 1, ptr) != NULL)
+	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		if (numara == o1.numara)
 		{
@@ -520,11 +536,11 @@ void ogretimGorevlisiListele()
 	printf("Ogretim gorevlisi listele islemi... \n\n");
 
 	ogr o1;
-	FILE *ptr = fopen("ogretimGorevlileri.dat", "r+b");
+	FILE *ptr = fopen("./data/ogretimGorevlileri.dat", "r+b");
 	int bolumNo, sayac = 0;
 
 	printf("%-20s%-20s%-30s%-20s\n", "NUMARA", "TC", "AD-SOYAD", "BOLUMU");
-	while (fread(&o1, sizeof(ogr), 1, ptr) != NULL)
+	while (fread(&o1, sizeof(ogr), 1, ptr) == 1)
 	{
 		printf("%-20d%-20s%-30s%-20d\n", o1.numara, o1.tc, o1.adSoyad, o1.bolumID);
 		sayac++;
@@ -598,7 +614,7 @@ void dersEkle()
 	printf("Ogretim gorevlisi numarasi : ");
 	scanf(" %d", &d1.ogrGorevlisiID);
 
-	FILE *numPtr = fopen("dersNumaralari.dat", "a+b");
+	FILE *numPtr = fopen("./data/dersNumaralari.dat", "a+b");
 	int numara = 0;
 	while (fread(&numara, sizeof(int), 1, numPtr))
 	{
@@ -608,7 +624,7 @@ void dersEkle()
 	fwrite(&numara, sizeof(int), 1, numPtr);
 	fclose(numPtr);
 
-	FILE *ptr = fopen("dersler.dat", "a+b");
+	FILE *ptr = fopen("./data/dersler.dat", "a+b");
 	fwrite(&d1, sizeof(ders), 1, ptr);
 	fclose(ptr);
 	printf("%d numarali ders kaydi tamam \n", numara);
@@ -621,7 +637,7 @@ void dersListele()
 
 	ders d1;
 
-	FILE *ptr = fopen("dersler.dat", "r+b");
+	FILE *ptr = fopen("./data/dersler.dat", "r+b");
 	printf("%-20s%-20s%-30s%-20s\n", "BOLUM-ID", "DERS-ID", "DERS-ADI", "Ogr.NO");
 	while (fread(&d1, sizeof(ders), 1, ptr))
 	{
@@ -674,7 +690,7 @@ void bolumEkle()
 	printf("Bolum Adi : ");
 	scanf(" %[^\n]s", b1.bolumAd);
 
-	FILE *numPtr = fopen("bolumNumaralari.dat", "a+b");
+	FILE *numPtr = fopen("./data/bolumNumaralari.dat", "a+b");
 	int numara = 0;
 	while (fread(&numara, sizeof(int), 1, numPtr))
 	{
@@ -684,7 +700,7 @@ void bolumEkle()
 	fwrite(&numara, sizeof(int), 1, numPtr);
 	fclose(numPtr);
 
-	FILE *ptr = fopen("bolumler.dat", "a+b");
+	FILE *ptr = fopen("./data/bolumler.dat", "a+b");
 	fwrite(&b1, sizeof(bolum), 1, ptr);
 	fclose(ptr);
 
@@ -697,7 +713,7 @@ void bolumListele()
 	printf("Bolumler listesi \n\n");
 	bolum b1;
 
-	FILE *Ptr = fopen("bolumler.dat", "rb");
+	FILE *Ptr = fopen("./data/bolumler.dat", "rb");
 	if (Ptr == NULL)
 	{
 		printf("Bolum dosyasi acilamadi! \n");
@@ -771,7 +787,7 @@ void notEkle()
 	printf("Puani : ");
 	scanf(" %f", &n1.puan);
 
-	FILE *numPtr = fopen("notNumaralari.dat", "a+b");
+	FILE *numPtr = fopen("./data/notNumaralari.dat", "a+b");
 	int numara = 0;
 	while (fread(&numara, sizeof(int), 1, numPtr))
 	{
@@ -781,7 +797,7 @@ void notEkle()
 	fwrite(&numara, sizeof(int), 1, numPtr);
 	fclose(numPtr);
 
-	FILE *ptr = fopen("notlar.dat", "a+b");
+	FILE *ptr = fopen("./data/notlar.dat", "a+b");
 	fwrite(&n1, sizeof(notlar), 1, ptr);
 	fclose(ptr);
 	printf("%d numarali not kaydi tamam \n", numara);
@@ -794,7 +810,7 @@ void notListele()
 
 	notlar n1;
 
-	FILE *ptr = fopen("notlar.dat", "r+b");
+	FILE *ptr = fopen("./data/notlar.dat", "r+b");
 	printf("%-20s%-20s%-20s\n", "DERS-ID", "OGRENCI-NO", "PUAN");
 	while (fread(&n1, sizeof(notlar), 1, ptr))
 	{
@@ -857,6 +873,8 @@ int menu()
 
 int main()
 {
+	dataKlasoru();
+
 	int secim = menu();
 	while (secim != 0)
 	{
