@@ -3,6 +3,16 @@
 #include <string.h>
 #include <windows.h>
 
+#define MAX_KULLANICILAR 100
+#define KULLANICI_ADI_UZUNLUK 20
+#define SIFRE_UZUNLUK 20
+
+typedef struct
+{
+	char kullaniciAdi[KULLANICI_ADI_UZUNLUK];
+	char sifre[SIFRE_UZUNLUK];
+} Kullanici;
+
 typedef struct Bolum
 {
 	int bolumID;
@@ -858,12 +868,14 @@ void notIslemleri()
 int menu()
 {
 	int secim;
+	// system("cls");
 	printf("\n\tOGRENCI ISLERI OTOMASYONU\n\n");
 	printf("\n\t1- OGRENCI ISLEMLARI \n");
 	printf("\n\t2- OGRETIM GOREVLISI ISLEMLARI \n");
 	printf("\n\t3- DERS ISLEMLARI \n");
 	printf("\n\t4- BOLUM ISLEMLARI \n");
 	printf("\n\t5- NOT ISLEMLARI \n");
+	printf("\n\t9- KULLANICI ISLEMLERI \n");
 	printf("\n\t0- PROGRAMI KAPAT \n");
 	printf("\n\t1- Seciminiz   :  ");
 	scanf("%d", &secim);
@@ -871,12 +883,10 @@ int menu()
 	return secim;
 }
 
-int main()
+void menuEkrani()
 {
-	dataKlasoru();
-
 	int secim = menu();
-	while (secim != 0)
+	while (secim != 9)
 	{
 		switch (secim)
 		{
@@ -895,13 +905,139 @@ int main()
 		case 5:
 			notIslemleri();
 			break;
-		case 0:
+		case 9:
 			break;
+		case 0:
+			printf("Program sonlandiriliyor... \n");
+			exit(0);
 		default:
 			printf("Hatali secim yaptiniz ! \n");
 		}
 		secim = menu();
 	}
+}
+
+void kullaniciKayit(Kullanici *kullanicilar, int *kullaniciSayisi)
+{
+	if (*kullaniciSayisi >= MAX_KULLANICILAR)
+	{
+		printf("Maksimum kullanici sayisina ulasildi.\n");
+		return;
+	}
+
+	Kullanici yeniKullanici;
+
+	printf("Kullanici Adi: ");
+	scanf("%s", yeniKullanici.kullaniciAdi);
+
+	printf("Sifre: ");
+	scanf("%s", yeniKullanici.sifre);
+
+	kullanicilar[*kullaniciSayisi] = yeniKullanici;
+	(*kullaniciSayisi)++;
+
+	// Kullanici bilgilerini binary dosyalara sona ekleme
+	FILE *kullaniciDosyasi = fopen("./data/kullanici.dat", "ab");
+	FILE *sifreDosyasi = fopen("./data/sifre.dat", "ab");
+
+	if (kullaniciDosyasi != NULL && sifreDosyasi != NULL)
+	{
+		fwrite(&yeniKullanici, sizeof(Kullanici), 1, kullaniciDosyasi);
+		fwrite(&yeniKullanici, sizeof(Kullanici), 1, sifreDosyasi);
+
+		fclose(kullaniciDosyasi);
+		fclose(sifreDosyasi);
+
+		printf("Kullanici kaydedildi.\n");
+	}
+	else
+	{
+		printf("Dosya acma hatasi.\n");
+	}
+}
+
+int kullaniciGiris(Kullanici *kullanicilar, int kullaniciSayisi)
+{
+	char kullaniciAdi[KULLANICI_ADI_UZUNLUK];
+	char sifre[SIFRE_UZUNLUK];
+
+	printf("Kullanici Adi: ");
+	scanf("%s", kullaniciAdi);
+
+	printf("Sifre: ");
+	scanf("%s", sifre);
+
+	for (int i = 0; i < kullaniciSayisi; i++)
+	{
+		if (strcmp(kullanicilar[i].kullaniciAdi, kullaniciAdi) == 0 && strcmp(kullanicilar[i].sifre, sifre) == 0)
+		{
+			return 1; // Giris basarili
+		}
+	}
+
+	return 0; // Giris basarisiz
+}
+
+void kullaniciBilgileriniOku(Kullanici *kullanicilar, int *kullaniciSayisi)
+{
+	FILE *kullaniciDosyasi = fopen("./data/kullanici.dat", "rb");
+	FILE *sifreDosyasi = fopen("./data/sifre.dat", "rb");
+
+	if (kullaniciDosyasi != NULL && sifreDosyasi != NULL)
+	{
+		while (fread(&kullanicilar[*kullaniciSayisi], sizeof(Kullanici), 1, kullaniciDosyasi) == 1)
+		{
+			fread(&kullanicilar[*kullaniciSayisi], sizeof(Kullanici), 1, sifreDosyasi);
+			(*kullaniciSayisi)++;
+		}
+
+		fclose(kullaniciDosyasi);
+		fclose(sifreDosyasi);
+	}
+}
+
+int main()
+{
+	dataKlasoru();
+
+	Kullanici kullanicilar[MAX_KULLANICILAR];
+	int kullaniciSayisi = 0;
+	int secim;
+
+	kullaniciBilgileriniOku(kullanicilar, &kullaniciSayisi);
+
+	do
+	{
+		printf("\n\t1. KAYIT OL\n");
+		printf("\n\t2. GIRIS YAP\n");
+		printf("\n\t0. CIKIS\n");
+		printf("\n\tSeciminiz: ");
+		scanf("%d", &secim);
+
+		switch (secim)
+		{
+		case 1:
+			kullaniciKayit(kullanicilar, &kullaniciSayisi);
+			break;
+		case 2:
+			if (kullaniciGiris(kullanicilar, kullaniciSayisi))
+			{
+				printf("Giris basarili!\n");
+				menuEkrani();
+			}
+			else
+			{
+				printf("Giris basarisiz. Kullanici adi veya sifre hatali.\n");
+			}
+			break;
+		case 0:
+			printf("Cikis yapiliyor...\n");
+			break;
+		default:
+			printf("Gecersiz secim. Lutfen tekrar deneyin.\n");
+		}
+	} while (secim != 0);
+
 	printf("Programi kapattiniz... \n");
 
 	return 0;
