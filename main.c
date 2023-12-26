@@ -917,6 +917,18 @@ void menuEkrani()
 	}
 }
 
+int kullaniciAdiVarMi(Kullanici *kullanicilar, int kullaniciSayisi, const char *kullaniciAdi)
+{
+	for (int i = 0; i < kullaniciSayisi; i++)
+	{
+		if (strcmp(kullanicilar[i].kullaniciAdi, kullaniciAdi) == 0)
+		{
+			return 1; // Kullanici adi var
+		}
+	}
+	return 0; // Kullanici adi yok
+}
+
 void kullaniciKayit(Kullanici *kullanicilar, int *kullaniciSayisi)
 {
 	if (*kullaniciSayisi >= MAX_KULLANICILAR)
@@ -930,6 +942,11 @@ void kullaniciKayit(Kullanici *kullanicilar, int *kullaniciSayisi)
 	printf("Kullanici Adi: ");
 	scanf("%s", yeniKullanici.kullaniciAdi);
 
+	if (kullaniciAdiVarMi(kullanicilar, *kullaniciSayisi, yeniKullanici.kullaniciAdi))
+	{
+		printf("Bu kullanici adi zaten var. Baska bir kullanici adi seciniz.\n");
+		return;
+	}
 	printf("Sifre: ");
 	scanf("%s", yeniKullanici.sifre);
 
