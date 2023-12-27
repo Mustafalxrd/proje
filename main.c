@@ -59,7 +59,7 @@ void dataKlasoru()
 	}
 	else
 	{
-		printf("Otomasyonun çalışması için gerekli klasör oluşturulamadı: %s\n", folderPath);
+		printf("Dizin hatası: %s\n", folderPath);
 	}
 }
 
@@ -246,6 +246,7 @@ void ogrenciBelgesi()
 			printf("%d numarali ogrencin kaydi SILINMISTIR . bilgileri asagidadir. \n", numara);
 			printf("TC          : %s \n", o1.tc);
 			printf("Ad-Soyad    : %s \n", o1.adSoyad);
+			printf("Dogum tarihi: %s \n", o1.dTarih);
 			printf("Bolumu      : %d \n", o1.bolumID);
 			printf("Durumu      : %d \n", o1.durum);
 			printf("Adres       : %s \n", o1.adres);
@@ -257,6 +258,7 @@ void ogrenciBelgesi()
 			printf("%d numarali ogrenci AKTIF kayitli ogrencidir . bilgileri asagidadir. \n", numara);
 			printf("TC          : %s \n", o1.tc);
 			printf("Ad-Soyad    : %s \n", o1.adSoyad);
+			printf("Dogum tarihi: %s \n", o1.dTarih);
 			printf("Bolumu      : %d \n", o1.bolumID);
 			printf("Durumu      : %d \n", o1.durum);
 			printf("Adres       : %s \n", o1.adres);
@@ -267,6 +269,7 @@ void ogrenciBelgesi()
 			printf("%d numarali ogrenci Fakultemizden MEZUN olmustur . bilgileri asagidadir. \n", numara);
 			printf("TC          : %s \n", o1.tc);
 			printf("Ad-Soyad    : %s \n", o1.adSoyad);
+			printf("Dogum tarihi: %s \n", o1.dTarih);
 			printf("Bolumu      : %d \n", o1.bolumID);
 			printf("Durumu      : %d \n", o1.durum);
 			printf("Adres       : %s \n", o1.adres);
@@ -870,11 +873,11 @@ int menu()
 	int secim;
 	// system("cls");
 	printf("\n\tOGRENCI ISLERI OTOMASYONU\n\n");
-	printf("\n\t1- OGRENCI ISLEMLARI \n");
-	printf("\n\t2- OGRETIM GOREVLISI ISLEMLARI \n");
-	printf("\n\t3- DERS ISLEMLARI \n");
-	printf("\n\t4- BOLUM ISLEMLARI \n");
-	printf("\n\t5- NOT ISLEMLARI \n");
+	printf("\n\t1- OGRENCI ISLEMLERI \n");
+	printf("\n\t2- OGRETIM GOREVLISI ISLEMLERI \n");
+	printf("\n\t3- DERS ISLEMLERI \n");
+	printf("\n\t4- BOLUM ISLEMLERI \n");
+	printf("\n\t5- NOT ISLEMLERI \n");
 	printf("\n\t9- KULLANICI ISLEMLERI \n");
 	printf("\n\t0- PROGRAMI KAPAT \n");
 	printf("\n\t1- Seciminiz   :  ");
@@ -919,7 +922,9 @@ void menuEkrani()
 
 int kullaniciAdiVarMi(Kullanici *kullanicilar, int kullaniciSayisi, const char *kullaniciAdi)
 {
-	for (int i = 0; i < kullaniciSayisi; i++)
+	int i;
+
+	for (i = 0; i < kullaniciSayisi; i++)
 	{
 		if (strcmp(kullanicilar[i].kullaniciAdi, kullaniciAdi) == 0)
 		{
@@ -939,15 +944,18 @@ void kullaniciKayit(Kullanici *kullanicilar, int *kullaniciSayisi)
 
 	Kullanici yeniKullanici;
 
-	printf("Kullanici Adi: ");
+	system("cls");
+	printf("\n\tKULLANICI KAYIT ISLEMI ...\n\n\n");
+	printf("\tKullanici Adi: ");
 	scanf("%s", yeniKullanici.kullaniciAdi);
 
 	if (kullaniciAdiVarMi(kullanicilar, *kullaniciSayisi, yeniKullanici.kullaniciAdi))
 	{
+		system("cls");
 		printf("Bu kullanici adi zaten var. Baska bir kullanici adi seciniz.\n");
 		return;
 	}
-	printf("Sifre: ");
+	printf("\tSifre: ");
 	scanf("%s", yeniKullanici.sifre);
 
 	kullanicilar[*kullaniciSayisi] = yeniKullanici;
@@ -957,6 +965,7 @@ void kullaniciKayit(Kullanici *kullanicilar, int *kullaniciSayisi)
 	FILE *kullaniciDosyasi = fopen("./data/kullanici.dat", "ab");
 	FILE *sifreDosyasi = fopen("./data/sifre.dat", "ab");
 
+	system("cls");
 	if (kullaniciDosyasi != NULL && sifreDosyasi != NULL)
 	{
 		fwrite(&yeniKullanici, sizeof(Kullanici), 1, kullaniciDosyasi);
@@ -977,22 +986,25 @@ int kullaniciGiris(Kullanici *kullanicilar, int kullaniciSayisi)
 {
 	char kullaniciAdi[KULLANICI_ADI_UZUNLUK];
 	char sifre[SIFRE_UZUNLUK];
+	int i;
+	system("cls");
+	printf("\n\tGIRIS YAPMA ISLEMI ...\n\n\n");
 
-	printf("Kullanici Adi: ");
+	printf("\tKullanici Adi: ");
 	scanf("%s", kullaniciAdi);
 
-	printf("Sifre: ");
+	printf("\tSifre: ");
 	scanf("%s", sifre);
 
-	for (int i = 0; i < kullaniciSayisi; i++)
+	for (i = 0; i < kullaniciSayisi; i++)
 	{
 		if (strcmp(kullanicilar[i].kullaniciAdi, kullaniciAdi) == 0 && strcmp(kullanicilar[i].sifre, sifre) == 0)
 		{
-			return 1; // Giris basarili
+			return i; // Giris basarili
 		}
 	}
 
-	return 0; // Giris basarisiz
+	return -1; // Giris basarisiz
 }
 
 void kullaniciBilgileriniOku(Kullanici *kullanicilar, int *kullaniciSayisi)
@@ -1037,20 +1049,27 @@ int main()
 			kullaniciKayit(kullanicilar, &kullaniciSayisi);
 			break;
 		case 2:
-			if (kullaniciGiris(kullanicilar, kullaniciSayisi))
+		{
+			int userindex = kullaniciGiris(kullanicilar, kullaniciSayisi);
+			if (userindex != -1)
 			{
+				system("cls");
 				printf("Giris basarili!\n");
+				printf("\nHosgeldin, %s!", kullanicilar[userindex].kullaniciAdi);
 				menuEkrani();
 			}
 			else
 			{
+				system("cls");
 				printf("Giris basarisiz. Kullanici adi veya sifre hatali.\n");
 			}
 			break;
+		}
 		case 0:
 			printf("Cikis yapiliyor...\n");
 			break;
 		default:
+			system("cls");
 			printf("Gecersiz secim. Lutfen tekrar deneyin.\n");
 		}
 	} while (secim != 0);
